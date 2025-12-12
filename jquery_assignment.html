@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Interactive Web Form Assignment</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+  <style>
+    .error-text {
+      color: red;
+      font-size: 0.9rem;
+      margin-top: 3px;
+    }
+    .error-border {
+      border-color: red !important;
+    }
+    .topic-error {
+      color: red;
+      font-size: 0.9rem;
+      margin-left: 10px;
+    }
+    .gender-error {
+      color: red;
+      font-size: 0.9rem;
+      margin-left: 10px;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body class="bg-light">
+  <div class="container mt-5">
+    <div class="card shadow">
+      <div class="card-body">
+        <h3 class="mb-4">Interactive Web Form</h3>
+        
+        <!-- Username -->
+        <div class="mb-3">
+          <label class="form-label">Username</label>
+          <input type="text" id="username" class="form-control">
+          <div id="username-error" class="error-text hidden">this field must not be empty</div>
+        </div>
+        
+        <!-- Email -->
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" id="email" class="form-control">
+          <div id="email-error" class="error-text hidden">this field must not be empty</div>
+        </div>
+        
+        <!-- Password -->
+        <div class="mb-3">
+          <label class="form-label">Password</label>
+          <input type="password" id="password" class="form-control">
+          <div id="password-error" class="error-text hidden">this field must not be empty</div>
+        </div>
+        
+        <!-- Confirm Password -->
+        <div class="mb-3">
+          <label class="form-label">Confirm Password</label>
+          <input type="password" id="confirmPassword" class="form-control">
+          <div id="confirmPassword-error" class="error-text hidden">this field must not be empty</div>
+          <div id="passwordMismatch-error" class="error-text hidden">confirmed password mismatched the password</div>
+        </div>
+        
+        <!-- Interesting Topics -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Interesting Topics</label>
+          <span id="topics-error" class="topic-error hidden">At least one topic must be selected</span>
+          <div class="form-check">
+            <input class="form-check-input topic" type="checkbox" id="topic1" value="HTML">
+            <label class="form-check-label" for="topic1">HTML</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input topic" type="checkbox" id="topic2" value="CSS">
+            <label class="form-check-label" for="topic2">CSS</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input topic" type="checkbox" id="topic3" value="JavaScript">
+            <label class="form-check-label" for="topic3">JavaScript</label>
+          </div>
+        </div>
+        
+        <!-- Gender -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Gender</label>
+          <span id="gender-error" class="gender-error hidden">please choose your gender</span>
+          <select id="gender" class="form-select">
+            <option>--</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+          </select>
+        </div>
+        
+        <!-- Submit -->
+        <button id="submitBtn" class="btn btn-primary">Submit</button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script>
+    $(document).ready(function() {
+
+      function validateField(fieldId, errorId) {
+        const field = $(`#${fieldId}`);
+        const errorElement = $(`#${errorId}`);
+        const value = field.val().trim();
+        
+        if (value === '') {
+          field.addClass('error-border');
+          errorElement.removeClass('hidden');
+          return false;
+        } else {
+          field.removeClass('error-border');
+          errorElement.addClass('hidden');
+          return true;
+        }
+      } 
+      
+      function validateTopics() {
+        const topicsChecked = $('.topic:checked').length > 0;
+        const errorElement = $('#topics-error');
+        
+        if (!topicsChecked) {
+          errorElement.removeClass('hidden');
+          return false;
+        } else {
+          errorElement.addClass('hidden');
+          return true;
+        }
+      }
+      
+      function validateGender() {
+        const gender = $('#gender').val();
+        const errorElement = $('#gender-error');
+        
+        if (gender === '--') {
+          errorElement.removeClass('hidden');
+          return false;
+        } else {
+          errorElement.addClass('hidden');
+          return true;
+        }
+      }  
+      
+      function validatePasswordMatch() {
+        const password = $('#password').val();
+        const confirmPassword = $('#confirmPassword').val();
+        const mismatchError = $('#passwordMismatch-error');
+        const confirmField = $('#confirmPassword'); 
+        
+        if (password !== '' && confirmPassword !== '' && password !== confirmPassword) {
+          confirmField.addClass('error-border');
+          mismatchError.removeClass('hidden');
+          return false;
+        } else {
+          mismatchError.addClass('hidden');
+          return true;
+        }
+      }
+      
+      $('#username, #email, #password, #confirmPassword').on('input', function() {
+        const fieldId = $(this).attr('id');
+        const errorId = `${fieldId}-error`;
+        validateField(fieldId, errorId);
+        
+        
+        if (fieldId === 'password' || fieldId === 'confirmPassword') {
+          validatePasswordMatch();
+        }
+      });
+      
+      
+      $('.topic').on('change', function() {
+        validateTopics();
+      });
+      
+      
+      $('#gender').on('change', function() {
+        validateGender();
+      });
+      
+      
+      $('#submitBtn').on('click', function(e) {
+        e.preventDefault();
+        
+        let isValid = true;
+        
+        isValid = validateField('username', 'username-error') && isValid;
+        isValid = validateField('email', 'email-error') && isValid;
+        isValid = validateField('password', 'password-error') && isValid;
+        isValid = validateField('confirmPassword', 'confirmPassword-error') && isValid;
+              
+        isValid = validateTopics() && isValid;
+        isValid = validateGender() && isValid;
+        
+        const password = $('#password').val();
+        const confirmPassword = $('#confirmPassword').val();
+        if (password !== '' && confirmPassword !== '') {
+          isValid = validatePasswordMatch() && isValid;
+        }
+        
+        if (isValid) {
+          alert('Form submitted successfully!');
+        } else {
+          alert('Please fix the errors in the form before submitting.');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
